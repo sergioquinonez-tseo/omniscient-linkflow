@@ -161,15 +161,15 @@ function renderQuad(){
     itemStyle:{color:col,opacity:0.75},
     data:run.pages.filter(p=>p.t==t).map(p=>[+t+jit(),Math.max(p.fs,1e-4),p.u,p.c,p.tr])}));
   mk('quad').setOption({
-    grid:{left:70,right:24,top:34,bottom:40},
+    grid:{left:80,right:24,top:38,bottom:40},
     tooltip:{formatter:v=>`${v.data[2]}<br>${v.data[3]} · tier ${Math.round(v.data[0])} · ${v.data[1].toFixed(3)}% flow · traffic ${fmt(v.data[4],0)}`},
-    legend:{top:0,left:0,itemWidth:12,textStyle:{fontSize:12}},
+    legend:{top:0,right:0,itemWidth:12,textStyle:{fontSize:12}},
     xAxis:{min:0.4,max:4.6,interval:1,name:'priority tier',nameLocation:'middle',nameGap:26,
       axisLabel:{formatter:v=>[1,2,3,4].includes(v)?'Tier '+v:''},axisLine:{lineStyle:{color:'#676767'}}},
-    yAxis:{type:'log',min:1e-4,name:'flow share %',splitLine:{lineStyle:{color:'#00000012'}}},
+    yAxis:{type:'log',min:1e-4,name:'flow share %',nameLocation:'middle',nameGap:52,nameRotate:90,splitLine:{lineStyle:{color:'#00000012'}}},
     series:series.concat([{type:'line',markLine:{silent:true,symbol:'none',
-      data:[{yAxis:z.med,label:{formatter:'tier-2 median flow',position:'insideEndTop',fontSize:11,color:'#a33b2e'},lineStyle:{color:'#a33b2e',type:'dashed'}},
-            {yAxis:z.p90,label:{formatter:'top-decile flow',position:'insideEndTop',fontSize:11,color:'#426600'},lineStyle:{color:'#426600',type:'dashed'}}]},data:[]}])},true);
+      data:[{yAxis:z.med,label:{formatter:'tier-2 median',position:'insideStartBottom',fontSize:11,color:'#a33b2e'},lineStyle:{color:'#a33b2e',type:'dashed'}},
+            {yAxis:z.p90,label:{formatter:'top decile',position:'insideEndTop',fontSize:11,color:'#426600'},lineStyle:{color:'#426600',type:'dashed'}}]},data:[]}])},true);
 }
 function renderZoneTable(zone){
   if(!zone){$('#zoneTbl').innerHTML='';return}
