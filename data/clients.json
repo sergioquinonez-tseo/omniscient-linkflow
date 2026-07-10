@@ -3,6 +3,10 @@
   {
    "id": "amazon-business",
    "display_name": "Amazon Business (US)"
+  },
+  {
+   "id": "beomniscient",
+   "display_name": "Omniscient Digital"
   }
  ]
 }
