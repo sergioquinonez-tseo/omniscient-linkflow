@@ -1,0 +1,17 @@
+{
+ "client": "beomniscient",
+ "display_name": "Omniscient Digital",
+ "base_url": "https://beomniscient.com",
+ "runs": [
+  {
+   "id": "2026-07-10",
+   "date": "2026-07-10",
+   "label": "Baseline audit (Jul 2026)",
+   "nodes": 1281,
+   "edges": 53350,
+   "gini": 0.923,
+   "link_loss_pct": 3.02,
+   "tier2_share": 2.15
+  }
+ ]
+}
