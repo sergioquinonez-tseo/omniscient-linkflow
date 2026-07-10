@@ -26,9 +26,13 @@
   select{font-family:'DM Sans';font-size:14px;padding:7px 10px;border:1px solid #00000033;border-radius:2px;background:var(--card);color:var(--ink)}
   .wrap{padding:0 32px 48px;max-width:1280px;margin:0 auto}
   .tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:18px}
-  .tile{background:var(--card);border:1px solid #00000014;border-radius:2px;padding:14px 16px}
+  .tile{background:var(--card);border:1px solid #00000014;border-radius:2px;padding:14px 16px 22px;position:relative}
   .tile .k{font-size:12px;color:var(--ink2);text-transform:uppercase;letter-spacing:.04em}
   .tile .v{font-size:26px;margin-top:4px}
+  .help{position:absolute;bottom:7px;right:9px;width:17px;height:17px;line-height:16px;text-align:center;border:1px solid #00000033;border-radius:50%;font-size:11px;color:var(--ink2);background:var(--card);cursor:help}
+  .help:hover{border-color:var(--accent);color:var(--accent)}
+  .help .tip{display:none;position:absolute;bottom:24px;right:-6px;width:264px;background:var(--card);border:1px solid #000;border-radius:2px;padding:10px 12px;font-size:12.5px;line-height:1.45;color:var(--ink);text-align:left;box-shadow:0 3px 10px #00000022;z-index:20;cursor:default}
+  .help:hover .tip{display:block}
   .chip{display:inline-block;font-size:12px;padding:1px 8px;border-radius:10px;margin-left:8px;vertical-align:middle}
   .chip.up{background:var(--sage);color:var(--up)} .chip.down{background:#f3ddd9;color:var(--down)} .chip.flat{background:#eee;color:var(--ink2)}
   .card{background:var(--card);border:1px solid #00000014;border-radius:2px;padding:18px 20px;margin-bottom:18px}
@@ -147,12 +151,19 @@ function renderTiles(){
   const M=run.metrics,C=cmp&&cmp.metrics;
   const t2=M.tier_flow_share_pct['2']??M.tier_flow_share_pct[2];
   const ct2=C?(C.tier_flow_share_pct['2']??C.tier_flow_share_pct[2]):null;
+  const DEFS={
+    'Pages':'HTML pages in the link graph for this crawl, after cleanup: internal, 200-status, canonical URLs only.',
+    'Internal links':'Unique internal links between those pages, weighted by placement. A link in the body copy counts more than one in navigation, sidebars, or footers, because that is roughly how search engines value them.',
+    'Gini (concentration)':'How unevenly link equity is spread across the site, from 0 (every page gets the same) to 1 (a few pages hold everything). Concentration is not bad in itself; the problem is when equity concentrates on the wrong pages. Read it together with tier-2 flow share.',
+    'Link loss to utility':'Share of total link equity absorbed by utility pages: contact, legal, login, release notes, and similar. Every point here is equity that never reaches strategic or revenue pages. Lower is better.',
+    'Tier-2 flow share':'Share of link equity reaching tier-2 pages: the strategic hubs and content targets we want search and AI engines to rank and cite. This is the main number the internal-linking program is trying to increase.'};
   const tile=(k,v,delta,inv)=>{
     let chip='';
     if(C&&delta!=null&&isFinite(delta)){
       const good=inv?delta<0:delta>0;
       chip=`<span class="chip ${Math.abs(delta)<1e-9?'flat':good?'up':'down'}">${delta>0?'+':''}${fmt(delta,2)}</span>`;}
-    return `<div class="tile"><div class="k">${k}</div><div class="v">${v}${chip}</div></div>`};
+    const help=DEFS[k]?`<div class="help">?<span class="tip">${DEFS[k]}</span></div>`:'';
+    return `<div class="tile"><div class="k">${k}</div><div class="v">${v}${chip}</div>${help}</div>`};
   $('#tiles').innerHTML=
     tile('Pages',fmt(M.nodes,0),C?M.nodes-C.nodes:null,false)+
     tile('Internal links',fmt(M.edges,0),C?M.edges-C.edges:null,false)+
