@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Insights Lab · Link Flow · Omniscient Digital</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,700;1,400&family=Libre+Baskerville:ital@0;1&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.5.0/echarts.min.js"></script>
+<style>
+  :root{--bg:#f1f3ed;--card:#fff;--ink:#000;--ink2:#676767;--accent:#426600;--sage:#e5eade;--sage2:#b7c1a3;
+    --t1:#2f3d14;--t2:#426600;--t3:#8fa05e;--t4:#b8b3a7;--up:#426600;--down:#a33b2e;--yellow:#fff2cc}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:'DM Sans',sans-serif;font-size:15px}
+  .serif{font-family:'copernicusbook','Libre Baskerville',Georgia,serif;font-weight:400}
+  header{display:flex;align-items:center;gap:16px;padding:22px 32px 10px;flex-wrap:wrap}
+  header img{height:30px}
+  header h1{font-size:26px;margin:0;flex:1 1 auto}
+  header a{color:var(--accent);font-size:14px;text-decoration:none}
+  .controls{display:flex;gap:10px;align-items:center;padding:6px 32px 18px;flex-wrap:wrap}
+  .controls label{color:var(--ink2);font-size:13px}
+  select{font-family:'DM Sans';font-size:14px;padding:7px 10px;border:1px solid #00000033;border-radius:2px;background:var(--card)}
+  .wrap{padding:0 32px 48px;max-width:1280px;margin:0 auto}
+  .card{background:var(--card);border:1px solid #00000014;border-radius:2px;padding:18px 20px;margin-bottom:18px}
+  .card h2{font-size:19px;margin:0 0 4px}
+  .card .sub{color:var(--ink2);font-size:13px;margin-bottom:10px;max-width:900px}
+  .chart{width:100%;height:400px}
+  .chart.tall{height:480px}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  @media(max-width:980px){.grid2{grid-template-columns:1fr}}
+  .zones{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 4px}
+  .zones button{font-family:'DM Sans';font-size:13px;padding:6px 12px;border:1px solid #00000033;border-radius:2px;background:var(--card);cursor:pointer}
+  .zones button.on{background:var(--sage);border-color:var(--accent)}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{background:#f1f3ed;text-align:left;padding:7px 9px;border-bottom:1px solid #00000022;white-space:nowrap}
+  td{padding:6px 9px;border-bottom:1px solid #00000010;background:#fafbf8}
+  td.url{max-width:430px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  td a{color:var(--accent);text-decoration:none}
+  .pill{display:inline-block;font-size:11px;padding:1px 7px;border-radius:9px;background:var(--sage);white-space:nowrap}
+  .note{background:var(--sage);border:1px solid #000;border-radius:2px;padding:10px 14px;font-size:13px;margin-top:10px}
+  footer{padding:20px 32px 40px;color:var(--ink2);font-size:12.5px}
+</style>
+</head>
+<body>
+<header>
+  <img src="https://beomniscient.com/wp-content/uploads/2023/08/omniscient-logo-text-icon.png" alt="Omniscient Digital">
+  <h1 class="serif">Insights Lab</h1>
+  <a id="backlink" href="index.html">← Distribution & leaderboard</a>
+</header>
+<div class="controls">
+  <label>Client</label><select id="selClient"></select>
+  <label>Report</label><select id="selRun"></select>
+  <label>Compare with</label><select id="selCompare"><option value="">None</option></select>
+</div>
+<div class="wrap">
+
+  <div class="card">
+    <h2 class="serif">1 · Starved priorities vs equity sinks</h2>
+    <div class="sub">Every page by priority tier (left = most important) and flow share (log). Bubble size = organic traffic. The pages that decide the link plan live in two zones: <b>starved priorities</b> (tier 1-2, below the tier-2 median flow) are link <i>targets</i>; <b>equity sinks</b> (tier 3-4, in the top decile of flow) are link <i>sources</i>.</div>
+    <div id="quad" class="chart tall"></div>
+    <div class="zones">
+      <button data-zone="starved">Show starved priorities</button>
+      <button data-zone="sinks">Show equity sinks</button>
+    </div>
+    <div id="zoneTbl"></div>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <h2 class="serif">2 · Cluster flow share</h2>
+      <div class="sub">Where the site's flow sits by topic cluster. In compare mode the inner ring is the baseline run.</div>
+      <div id="donut" class="chart"></div>
+    </div>
+    <div class="card">
+      <h2 class="serif">3 · Hub health</h2>
+      <div class="sub">Share of each cluster's own flow that sits on its designated hub. A healthy hub-and-spoke cluster concentrates a meaningful share on the hub; near-zero bars mean the cluster has authority but the citable page does not.</div>
+      <div id="hubs" class="chart"></div>
+    </div>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <h2 class="serif">4 · Concentration curve</h2>
+      <div class="sub">Cumulative share of total flow held by the top N% of pages. The further the curve bows from the diagonal, the more concentrated the site (Gini). Compare mode overlays the baseline as a dashed line.</div>
+      <div id="lorenz" class="chart"></div>
+    </div>
+    <div class="card">
+      <h2 class="serif">6 · Flow by click depth</h2>
+      <div class="sub">Clicks from the crawl entry page. AI crawlers discover and refresh pages by following links; pages beyond ~3 clicks are discovered less reliably. Bars: page count; line: share of total flow at that depth.</div>
+      <div id="depth" class="chart"></div>
+      <div class="note" id="depthNote"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2 class="serif">5 · Equity map (treemap)</h2>
+    <div class="sub">Clusters sized by total flow; pages within each cluster sized by their share, colored by tier (dark olive = tier 1, gray = tier 4). Big gray/light blocks inside a cluster are hoarding spokes; tiny dark blocks are starved priority pages. Click a cluster to zoom.</div>
+    <div id="tree" class="chart tall"></div>
+  </div>
+
+</div>
+<footer>Omniscient Digital · Insights Lab prototype · pick what earns a permanent spot</footer>
+<script>
+const $=s=>document.querySelector(s);
+const fmt=(n,d=2)=>n==null?'n/a':(+n).toLocaleString('en-US',{maximumFractionDigits:d});
+const TIER_COLORS={1:'#2f3d14',2:'#426600',3:'#8fa05e',4:'#b8b3a7'};
+const CLUSTER_COLORS=['#426600','#8fa05e','#6f8f8f','#b7c1a3','#d9b64e','#2f3d14','#dcdcd4','#b8b3a7'];
+let run=null,cmp=null,charts={};
+const qs=new URLSearchParams(location.search);
+async function j(u){const r=await fetch(u);if(!r.ok)throw new Error(u);return r.json()}
+function mk(id){if(!charts[id])charts[id]=echarts.init($('#'+id));return charts[id]}
+
+async function init(){
+  const clients=(await j('data/clients.json')).clients;
+  $('#selClient').innerHTML=clients.map(c=>`<option value="${c.id}">${c.display_name}</option>`).join('');
+  $('#selClient').value=qs.get('client')||clients[0].id;
+  await loadClient();
+  $('#selClient').onchange=()=>{qs.set('client',$('#selClient').value);qs.delete('run');qs.delete('compare');push();loadClient()};
+  $('#selRun').onchange=()=>{qs.set('run',$('#selRun').value);push();loadRuns()};
+  $('#selCompare').onchange=()=>{const v=$('#selCompare').value;v?qs.set('compare',v):qs.delete('compare');push();loadRuns()};
+  document.querySelectorAll('.zones button').forEach(b=>b.onclick=()=>{
+    document.querySelectorAll('.zones button').forEach(x=>x.classList.toggle('on',x===b&&!b.classList.contains('on')));
+    renderZoneTable(b.classList.contains('on')?b.dataset.zone:null)});
+}
+function push(){history.replaceState(null,'','?'+qs.toString());$('#backlink').href='index.html?'+qs.toString()}
+async function loadClient(){
+  const man=await j(`data/${$('#selClient').value}/manifest.json`);
+  const runs=[...man.runs].sort((a,b)=>b.date.localeCompare(a.date));
+  $('#selRun').innerHTML=runs.map(r=>`<option value="${r.id}">${r.date} · ${r.label}</option>`).join('');
+  $('#selCompare').innerHTML='<option value="">None</option>'+runs.map(r=>`<option value="${r.id}">${r.date} · ${r.label}</option>`).join('');
+  $('#selRun').value=qs.get('run')||runs[0].id;
+  if(qs.get('compare'))$('#selCompare').value=qs.get('compare');
+  push();
+  await loadRuns();
+}
+async function loadRuns(){
+  const c=$('#selClient').value;
+  run=await j(`data/${c}/${$('#selRun').value}.json`);
+  const cv=$('#selCompare').value;
+  cmp=(cv&&cv!==run.id)?await j(`data/${c}/${cv}.json`):null;
+  if(cmp&&cmp.date>run.date){const t=run;run=cmp;cmp=t;$('#selRun').value=run.id;$('#selCompare').value=cmp.id}
+  renderQuad();renderDonut();renderHubs();renderLorenz();renderDepth();renderTree();renderZoneTable(null);
+}
+// ---- zone logic shared by chart 1 ----
+function zones(r){
+  const t2=r.pages.filter(p=>p.t<=2).map(p=>p.fs).sort((a,b)=>a-b);
+  const med=t2.length?t2[Math.floor(t2.length/2)]:0.01;
+  const all=[...r.pages].map(p=>p.fs).sort((a,b)=>b-a);
+  const p90=all[Math.floor(all.length*0.1)]||0;
+  const starved=r.pages.filter(p=>p.t<=2&&p.fs<med).sort((a,b)=>b.tr-a.tr||a.fs-b.fs);
+  const sinks=r.pages.filter(p=>p.t>=3&&p.fs>=p90&&p.pt!=='money').sort((a,b)=>b.fs-a.fs);
+  return {med,p90,starved,sinks};
+}
+function renderQuad(){
+  const z=zones(run);
+  const jit=()=>((Math.random()-0.5)*0.5);
+  const series=Object.entries(TIER_COLORS).map(([t,col])=>({
+    name:'Tier '+t,type:'scatter',
+    symbolSize:v=>Math.min(26,6+Math.sqrt(v[4]||0)/4),
+    itemStyle:{color:col,opacity:0.75},
+    data:run.pages.filter(p=>p.t==t).map(p=>[+t+jit(),Math.max(p.fs,1e-4),p.u,p.c,p.tr])}));
+  mk('quad').setOption({
+    grid:{left:70,right:24,top:34,bottom:40},
+    tooltip:{formatter:v=>`${v.data[2]}<br>${v.data[3]} · tier ${Math.round(v.data[0])} · ${v.data[1].toFixed(3)}% flow · traffic ${fmt(v.data[4],0)}`},
+    legend:{top:0,left:0,itemWidth:12,textStyle:{fontSize:12}},
+    xAxis:{min:0.4,max:4.6,interval:1,name:'priority tier',nameLocation:'middle',nameGap:26,
+      axisLabel:{formatter:v=>[1,2,3,4].includes(v)?'Tier '+v:''},axisLine:{lineStyle:{color:'#676767'}}},
+    yAxis:{type:'log',min:1e-4,name:'flow share %',splitLine:{lineStyle:{color:'#00000012'}}},
+    series:series.concat([{type:'line',markLine:{silent:true,symbol:'none',
+      data:[{yAxis:z.med,label:{formatter:'tier-2 median flow',position:'insideEndTop',fontSize:11,color:'#a33b2e'},lineStyle:{color:'#a33b2e',type:'dashed'}},
+            {yAxis:z.p90,label:{formatter:'top-decile flow',position:'insideEndTop',fontSize:11,color:'#426600'},lineStyle:{color:'#426600',type:'dashed'}}]},data:[]}])},true);
+}
+function renderZoneTable(zone){
+  if(!zone){$('#zoneTbl').innerHTML='';return}
+  const z=zones(run);
+  const rows=(zone==='starved'?z.starved:z.sinks).slice(0,20);
+  const cap=zone==='starved'
+    ?`Starved priorities: tier 1-2 pages below the tier-2 median flow (${z.med.toFixed(3)}%). These are link targets.`
+    :`Equity sinks: tier 3-4 non-money pages in the top decile of flow (≥ ${z.p90.toFixed(3)}%). These are link sources.`;
+  $('#zoneTbl').innerHTML=`<div class="sub" style="margin:8px 0 6px">${cap}</div>
+   <div style="overflow-x:auto"><table><thead><tr><th>Rank</th><th>URL</th><th>Cluster</th><th>Tier</th><th>Flow %</th><th>Traffic</th><th>Ref. domains</th></tr></thead><tbody>`+
+   rows.map(p=>`<tr><td>#${p.fr}</td><td class="url"><a href="${(run.base_url||'')+p.u}" target="_blank" rel="noopener">${p.u}</a></td>
+     <td><span class="pill">${p.c}</span></td><td>${p.t}</td><td>${p.fs.toFixed(3)}</td><td>${fmt(p.tr,0)}</td><td>${fmt(p.rd,0)}</td></tr>`).join('')+'</tbody></table></div>';
+}
+function clusterSums(r){
+  const s={};r.pages.forEach(p=>{s[p.c]=(s[p.c]||0)+p.fs});return s;
+}
+function renderDonut(){
+  const cur=clusterSums(run);
+  const names=Object.keys(cur).sort((a,b)=>cur[b]-cur[a]);
+  const colorOf={};names.forEach((n,i)=>colorOf[n]=n==='None'?'#dcdcd4':CLUSTER_COLORS[i%CLUSTER_COLORS.length]);
+  const mkData=s=>names.map(n=>({name:n,value:+(s[n]||0).toFixed(2),itemStyle:{color:colorOf[n]}}));
+  const series=[{name:run.date,type:'pie',radius:cmp?['52%','74%']:['45%','72%'],
+    label:{formatter:'{b}\n{d}%',fontSize:11},data:mkData(cur),
+    itemStyle:{borderColor:'#fff',borderWidth:1.5}}];
+  if(cmp)series.push({name:cmp.date+' (baseline)',type:'pie',radius:['30%','46%'],
+    label:{show:false},data:mkData(clusterSums(cmp)),itemStyle:{opacity:0.55,borderColor:'#fff',borderWidth:1}});
+  mk('donut').setOption({tooltip:{formatter:v=>`${v.seriesName}<br>${v.name}: ${v.value}% (${v.percent}% of clustered flow)`},series},true);
+}
+function renderHubs(){
+  const calc=r=>{const cs=clusterSums(r);const out=[];
+    Object.entries(r.hubs||{}).forEach(([c,h])=>{
+      const hub=h?r.pages.find(p=>p.u===h):null;
+      out.push({c,hub:h,pct:h&&hub&&cs[c]?hub.fs/cs[c]*100:(h?0:null),cflow:cs[c]||0})});
+    return out.sort((a,b)=>(b.cflow)-(a.cflow))};
+  const cur=calc(run);
+  const cats=cur.map(x=>x.c);
+  const series=[{name:run.date,type:'bar',barWidth:cmp?14:22,itemStyle:{color:'#426600'},
+    label:{show:true,position:'right',fontSize:11,formatter:v=>v.value==null?'no hub':v.value.toFixed(1)+'%'},
+    data:cur.map(x=>x.pct==null?null:+x.pct.toFixed(2))}];
+  if(cmp){const base=calc(cmp);
+    series.push({name:cmp.date+' (baseline)',type:'bar',barWidth:14,itemStyle:{color:'#b8b3a7'},
+      data:cats.map(c=>{const f=base.find(x=>x.c===c);return f&&f.pct!=null?+f.pct.toFixed(2):null})})}
+  mk('hubs').setOption({
+    grid:{left:150,right:60,top:cmp?30:14,bottom:36},
+    legend:cmp?{top:0}:{show:false},
+    tooltip:{formatter:v=>`${v.name}: ${v.value==null?'no designated hub exists':v.value+'% of cluster flow on hub'}`},
+    xAxis:{type:'value',name:'% of cluster flow on its hub',nameLocation:'middle',nameGap:24,axisLine:{lineStyle:{color:'#676767'}}},
+    yAxis:{type:'category',inverse:true,data:cats.map(c=>c+(run.hubs[c]?'':' ⚠')),axisLabel:{fontSize:12}},
+    series},true);
+}
+function renderLorenz(){
+  const curve=r=>{const fs=[...r.pages].map(p=>p.fs).sort((a,b)=>b-a);
+    const tot=fs.reduce((a,b)=>a+b,0);let acc=0;
+    return fs.map((v,i)=>{acc+=v;return [ (i+1)/fs.length*100, acc/tot*100 ]})};
+  const series=[{name:`${run.date} (Gini ${run.metrics.gini})`,type:'line',showSymbol:false,lineStyle:{color:'#426600',width:2.5},data:curve(run)},
+    {name:'perfect equality',type:'line',showSymbol:false,lineStyle:{color:'#00000030',type:'dotted'},data:[[0,0],[100,100]]}];
+  if(cmp)series.splice(1,0,{name:`${cmp.date} (Gini ${cmp.metrics.gini})`,type:'line',showSymbol:false,lineStyle:{color:'#b8b3a7',width:2,type:'dashed'},data:curve(cmp)});
+  mk('lorenz').setOption({
+    grid:{left:60,right:20,top:34,bottom:42},legend:{top:0,textStyle:{fontSize:11.5}},
+    tooltip:{trigger:'axis',formatter:v=>v.filter(x=>x.seriesName!=='perfect equality').map(x=>`${x.seriesName}: top ${x.data[0].toFixed(0)}% of pages hold ${x.data[1].toFixed(1)}% of flow`).join('<br>')},
+    xAxis:{type:'value',max:100,name:'% of pages (ranked by flow)',nameLocation:'middle',nameGap:26},
+    yAxis:{type:'value',max:100,name:'cumulative % of flow'},
+    series},true);
+}
+function renderDepth(){
+  const build=r=>{const withD=r.pages.filter(p=>p.d!=null);
+    const minD=Math.min(...withD.map(p=>p.d));
+    const bucket=p=>Math.min(6,p.d-minD);
+    const counts={},flow={};withD.forEach(p=>{const b=bucket(p);counts[b]=(counts[b]||0)+1;flow[b]=(flow[b]||0)+p.fs});
+    return {counts,flow,minD,withD}};
+  const B=build(run);
+  const cats=[0,1,2,3,4,5,6].map(i=>i===6?'6+':String(i));
+  const beyond3=Object.entries(B.flow).filter(([k])=>+k>3).reduce((a,[,v])=>a+v,0);
+  const cBeyond3=Object.entries(B.counts).filter(([k])=>+k>3).reduce((a,[,v])=>a+v,0);
+  $('#depthNote').innerHTML=`<b>${fmt(cBeyond3,0)} pages (${fmt(beyond3,1)}% of flow)</b> sit more than 3 clicks from the entry page, past the reliable discovery range for AI crawlers.`;
+  mk('depth').setOption({
+    grid:{left:60,right:60,top:34,bottom:36},
+    legend:{top:0,textStyle:{fontSize:11.5}},
+    tooltip:{trigger:'axis'},
+    xAxis:{type:'category',data:cats,name:'clicks from entry',nameLocation:'middle',nameGap:26},
+    yAxis:[{type:'value',name:'pages'},{type:'value',name:'% of flow',axisLabel:{formatter:'{value}%'}}],
+    series:[
+      {name:'pages',type:'bar',barWidth:26,itemStyle:{color:'#b7c1a3'},data:cats.map((c,i)=>B.counts[i]||0)},
+      {name:'% of total flow',type:'line',yAxisIndex:1,itemStyle:{color:'#426600'},lineStyle:{color:'#426600',width:2.5},data:cats.map((c,i)=>+(B.flow[i]||0).toFixed(2))}]},true);
+}
+function renderTree(){
+  const cs=clusterSums(run);
+  const kids=Object.keys(cs).sort((a,b)=>cs[b]-cs[a]).map(c=>{
+    const pages=run.pages.filter(p=>p.c===c).sort((a,b)=>b.fs-a.fs);
+    const top=pages.slice(0,40).map(p=>({name:p.u.split('/').pop()||p.u,value:Math.max(p.fs,1e-4),
+      itemStyle:{color:TIER_COLORS[p.t]},u:p.u,t:p.t,fs:p.fs}));
+    const rest=pages.slice(40).reduce((a,p)=>a+p.fs,0);
+    if(rest>0)top.push({name:`(+${pages.length-40} more)`,value:Math.max(rest,1e-4),itemStyle:{color:'#dcdcd4'}});
+    return {name:c,value:Math.max(cs[c],1e-4),children:top,itemStyle:{borderColor:'#f1f3ed',borderWidth:2}}});
+  mk('tree').setOption({
+    tooltip:{formatter:v=>v.data.u?`${v.data.u}<br>tier ${v.data.t} · ${v.data.fs.toFixed(3)}% flow`:`${v.name}: ${(+v.value).toFixed(2)}% of flow`},
+    series:[{type:'treemap',roam:false,nodeClick:'zoomToNode',breadcrumb:{show:true,top:0},
+      label:{fontSize:11,formatter:'{b}'},upperLabel:{show:true,height:22,color:'#000',fontSize:12,backgroundColor:'#e5eade'},
+      levels:[{itemStyle:{gapWidth:3}},{itemStyle:{gapWidth:1}}],data:kids}]},true);
+}
+window.addEventListener('resize',()=>Object.values(charts).forEach(c=>c.resize()));
+init().catch(e=>{document.body.insertAdjacentHTML('beforeend',`<div class="wrap"><div class="card">Failed to load data: ${e.message}</div></div>`)});
+</script>
+</body>
+</html>

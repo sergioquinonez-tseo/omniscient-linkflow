@@ -32,6 +32,7 @@ f = pd.read_csv(a.flow)
 m = json.load(open(a.metrics))
 col = lambda *names: next((c for c in f.columns if c.lower() in names), None)
 cU, cC, cT, cP = col('url'), col('cluster'), col('tier'), col('page_type')
+cD = col('crawl depth', 'depth_sf', 'click depth')
 pages = []
 for _, r in f.sort_values('flow_rank').iterrows():
     pages.append({
@@ -42,7 +43,8 @@ for _, r in f.sort_values('flow_rank').iterrows():
         'fs': round(float(r['flow_share_pct']), 5),
         'fr': int(r['flow_rank']),
         'tr': int(r['traffic']) if pd.notna(r.get('traffic')) else 0,
-        'rd': int(r['refdomains']) if pd.notna(r.get('refdomains')) else 0})
+        'rd': int(r['refdomains']) if pd.notna(r.get('refdomains')) else 0,
+        'd': int(r[cD]) if cD and pd.notna(r[cD]) else None})
 
 snap = {'id': a.date, 'date': a.date, 'label': a.label, 'base_url': a.base_url,
         'metrics': {'nodes': m['nodes'], 'edges': m['edges'], 'gini': m['gini'],

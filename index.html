@@ -63,6 +63,7 @@
 <header>
   <img src="https://beomniscient.com/wp-content/uploads/2023/08/omniscient-logo-text-icon.png" alt="Omniscient Digital">
   <h1 class="serif">Link Flow Distribution</h1>
+  <a id="insightslink" href="insights.html" style="color:var(--accent);font-size:14px;text-decoration:none">Insights Lab →</a>
 </header>
 <div class="controls">
   <label>Client</label><select id="selClient"></select>
@@ -114,7 +115,7 @@ async function init(){
   $('#prev').onclick=()=>{state.page--;renderTable()};
   $('#next').onclick=()=>{state.page++;renderTable()};
 }
-function push(){history.replaceState(null,'','?'+qs.toString())}
+function push(){history.replaceState(null,'','?'+qs.toString());const il=document.getElementById('insightslink');if(il)il.href='insights.html?'+qs.toString()}
 
 async function loadClient(){
   manifest=await j(`data/${$('#selClient').value}/manifest.json`);
