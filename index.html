@@ -108,9 +108,9 @@ const qs=new URLSearchParams(location.search);
 async function j(u){const r=await fetch(u);if(!r.ok)throw new Error(u);return r.json()}
 
 async function init(){
-  clients=(await j('data/clients.json')).clients;
+  clients=(await j('data/clients.json')).clients.filter(c=>c.id!=='amazon-business');
   $('#selClient').innerHTML=clients.map(c=>`<option value="${c.id}">${c.display_name}</option>`).join('');
-  $('#selClient').value=qs.get('client')||clients[0].id;
+  const want=qs.get('client');$('#selClient').value=clients.some(c=>c.id===want)?want:clients[0].id;if(want&&want!==$('#selClient').value){qs.set('client',$('#selClient').value);qs.delete('run');qs.delete('compare')}
   await loadClient();
   $('#selClient').onchange=()=>{qs.set('client',$('#selClient').value);qs.delete('run');qs.delete('compare');push();loadClient()};
   $('#selRun').onchange=()=>{qs.set('run',$('#selRun').value);push();loadRuns()};
